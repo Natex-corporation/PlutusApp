@@ -1,0 +1,4 @@
+BUY     AABV    152.619     2000
+SELL    AABV    153.250     1333
+SELL    AABV    153.145      666
+BUY     AABV    152.365     1200

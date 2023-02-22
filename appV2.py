@@ -99,46 +99,52 @@ class App:
         # close input window and open new window
         self.master.withdraw()
         self.new_window = tk.Toplevel()
-        self.new_window.title("New Window")
+        self.new_window.title("Trading")
         self.new_window.geometry("500x500")
         self.new_window.protocol("WM_DELETE_WINDOW", self.on_new_window_close)
 
         # create label to display file contents
-        self.file_label = tk.Label(self.new_window, text="Trading")
+        self.trading_days = tk.Label(self.new_window, text="")
+        self.trading_days.pack()
+        self.file_label = tk.Label(self.new_window, text="")
         self.file_label.pack()
 
         # start timer to update label every 30 seconds
         self.update_file_label()
-        self.new_window.after(30000, self.update_file_label)
+        self.new_window.after(3000, self.update_file_label)
 
     def update_file_label(self):
         # read file and set label text
         
-  
+        if(trading_day==True):
+            self.trading_days.config(text='Dnes se obchoduje') #= tk.Label(self.new_window, text='Dnes se obchoduje')
+            
         # the figure that will contain the plot
-        fig = Figure(figsize = (5, 5), dpi = 100)
+            '''fig = Figure(figsize = (5, 5), dpi = 100)
   
         # list of squares
-        y = pd.read_csv('results/AAL.csv')
-        y = y['0']
+            y = pd.read_csv('trading_results/AAL.csv')
+            y = y['0']
         # adding the subplot
-        plot1 = fig.add_subplot(111)
+            plot1 = fig.add_subplot(111)
         # plotting the graph
-        plot1.plot(y)
-        canvas = FigureCanvasTkAgg(fig, master=self.new_window)  
-        canvas.draw()
-        canvas.get_tk_widget().pack()
+            plot1.plot(y)
+            canvas = FigureCanvasTkAgg(fig, master=self.new_window)  
+            canvas.draw()
+            canvas.get_tk_widget().pack()
         # creating the Matplotlib toolbar
-        toolbar = NavigationToolbar2Tk(canvas, master=self.new_window)
-        toolbar.update()
-        canvas.get_tk_widget().pack()
+            toolbar = NavigationToolbar2Tk(canvas, master=self.new_window)
+            toolbar.update()
+            canvas.get_tk_widget().pack()'''
         
-        with open("items.txt", "r") as f:
-            contents = f.read()
-        self.file_label.config(text=contents)
-
+            with open("items.txt", "r") as f:
+                contents = f.read()
+            self.file_label.config(text=contents)
+        if(trading_day==False):
+            self.trading_days.config(text='Dnes se neobchoduje') #= tk.Label(self.new_window, )
+            #self.trading_days.pack()
         # start timer to update label again in 30 seconds
-        self.new_window.after(30000, self.update_file_label)
+        self.new_window.after(3000, self.update_file_label)
 
     def on_new_window_close(self):
         # restore main window and destroy new window

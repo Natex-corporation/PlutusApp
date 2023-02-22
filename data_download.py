@@ -23,3 +23,6 @@ def download(tickers):
         #print (data, 'data')
         df = pd.DataFrame(data)
         df.to_csv('app_test/'+name+'.csv', mode='a', header=False)
+        
+def train_nn():
+    print('nothigh here yet')
