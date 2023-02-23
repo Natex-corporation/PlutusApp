@@ -99,13 +99,18 @@ class App:
             tickers.append(str(item))
         print("Selected item:", selected_item)
         print("Input secret:", self.input_entry.get())
-        print("Input secret:", self.input_entry_pub.get())
+        print("Input :", self.input_entry_pub.get())
         checkbox_state = self.input_checkbox_var.get()
         print("Checkbox:", checkbox_state)
-        
+        dk=pd.DataFrame()
+        dk['tickers'] = tickers
+        dk['secret_key'] = self.input_entry.get()
+        dk['publick_key'] = self.input_entry_pub.get()
+        dk['paper'] = self.input_checkbox_var.get()
+        dk.to_csv('output.csv')
         #training download
         dd.download(tickers)
-        
+        dd.train_nn()
         # close input window and open new window
         self.master.withdraw()
         self.new_window = tk.Toplevel()
