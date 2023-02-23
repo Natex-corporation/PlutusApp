@@ -5,7 +5,15 @@ import pandas as pd
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import data_download as dd
+from PIL import ImageTk, Image
+import datetime
+import os
+print(datetime.datetime.now())
 
+#os.remove('app_test/ABBV.csv')
+names = os.listdir('app_test')
+for i in names:
+    os.remove('app_test/'+i)
 
 df= pd.read_csv('sources_linker/tickers.csv')
 df = df['Symbol']
@@ -28,12 +36,14 @@ for i in range(len(dt[' '])):
 class App:
     def __init__(self, master):
         self.master = master
-        master.title("Multi-Select Demo")
-
+        master.title("Plutus")
+        self.master.geometry("150x400")
+        self.ticker_label = tk.Label(master, text="Select ticker/s")
+        self.ticker_label.pack()
         self.lb = tk.Listbox(master, selectmode=tk.MULTIPLE)
         for i in df:
             self.lb.insert(tk.END, f"{i}")
-        self.lb.pack()
+        self.lb.pack(fill='both', expand=True)
         
         # create dropdown
         self.dropdown_var = tk.StringVar()
@@ -42,16 +52,16 @@ class App:
         self.dropdown.pack()
 
         # create input fields
-        self.input_label = tk.Label(master, text="secret key")
+        self.input_label = tk.Label(master, text="Secret key:")
         #self.input_label.pack()
         self.input_entry = tk.Entry(master)
         #self.input_entry.pack()
-        self.input_label_pub = tk.Label(master, text="public key")
+        self.input_label_pub = tk.Label(master, text="Public key:")
         #self.input_label_pub.pack()
         self.input_entry_pub = tk.Entry(master)
         #self.input_entry_pub.pack()
         self.input_checkbox_var = tk.BooleanVar()
-        self.input_checkbox = tk.Checkbutton(master, text="paper trade?", variable=self.input_checkbox_var)
+        self.input_checkbox = tk.Checkbutton(master, text="Paper trade?", variable=self.input_checkbox_var)
         #self.input_checkbox.pack()
 
         # create start button
@@ -99,8 +109,8 @@ class App:
         # close input window and open new window
         self.master.withdraw()
         self.new_window = tk.Toplevel()
-        self.new_window.title("Trading")
-        self.new_window.geometry("500x500")
+        self.new_window.title("Plutus Trading")
+        self.new_window.geometry("1000x1000")
         self.new_window.protocol("WM_DELETE_WINDOW", self.on_new_window_close)
 
         # create label to display file contents
@@ -108,6 +118,11 @@ class App:
         self.trading_days.pack()
         self.file_label = tk.Label(self.new_window, text="")
         self.file_label.pack()
+        self.img = ImageTk.PhotoImage(Image.open("Figure_1.png"))
+
+        # Create a Label Widget to display the text or Image
+        self.label = tk.Label(self.new_window, image = self.img)
+        self.label.pack()
 
         # start timer to update label every 30 seconds
         self.update_file_label()
