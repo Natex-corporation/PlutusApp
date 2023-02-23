@@ -123,3 +123,4 @@ def live_data(tickers):
         data = yf.download(name, start=str(yesterday), end=str(today), interval='1m')
         df = pd.DataFrame(data)
         df.to_csv('live_data/'+name+'.csv', mode='a', header=False)
+

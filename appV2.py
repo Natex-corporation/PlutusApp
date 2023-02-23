@@ -8,6 +8,7 @@ import data_download as dd
 from PIL import ImageTk, Image
 import datetime
 import os
+import magic
 print(datetime.datetime.now())
 
 #os.remove('app_test/ABBV.csv')
@@ -164,6 +165,7 @@ class App:
             self.trading_days.config(text='Dnes se neobchoduje') #= tk.Label(self.new_window, )
             #self.trading_days.pack()
         # start timer to update label again in 30 seconds
+        dd.live_data((pd.read_csv('outptu.csv'))['tickers'])
         self.new_window.after(3000, self.update_file_label)
 
     def on_new_window_close(self):
