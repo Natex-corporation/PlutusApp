@@ -42,9 +42,10 @@ def train_nn():
     
     linker = 'app_test'#'finised_files'
     names = os.listdir(linker)
-           
-    if(os.path.is_file('model.h5')==True):
-        os.remove('model.h5')
+    itemss = os.scandir()
+    for i in itemss:       
+        if(str(i)=='model.h5'):
+            os.remove('model.h5')
     
     model = keras.models.Sequential()
     model.add(keras.layers.LSTM(units=512, return_sequences=True, input_shape=(512, 6)))

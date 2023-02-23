@@ -157,10 +157,11 @@ class App:
             toolbar = NavigationToolbar2Tk(canvas, master=self.new_window)
             toolbar.update()
             canvas.get_tk_widget().pack()'''
-        
+            magic.magic()
             with open("items.txt", "r") as f:
                 contents = f.read()
             self.file_label.config(text=contents)
+            
         if(trading_day==False):
             self.trading_days.config(text='Dnes se neobchoduje') #= tk.Label(self.new_window, )
             #self.trading_days.pack()
