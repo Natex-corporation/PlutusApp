@@ -7,6 +7,7 @@ This is a Python application that allows users to select multiple stock tickers 
 - pandas
 - data_download
 - Pillow
+- Tensorflow
 ## Installation
 1. Clone the repository
 2. Install the required packages using pip
