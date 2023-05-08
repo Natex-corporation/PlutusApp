@@ -1,14 +1,12 @@
 import tkinter as tk
-import time
 import datetime
 import pandas as pd
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import data_download as dd
 from PIL import ImageTk, Image
 import datetime
 import os
 import magic
+
 print(datetime.datetime.now())
 
 #os.remove('app_test/ABBV.csv')
@@ -16,17 +14,20 @@ names = os.listdir('app_test')
 for i in names:
     os.remove('app_test/'+i)
 
-df= pd.read_csv('sources_linker/tickers.csv')
-df = df['Symbol']
-print(df)
+all_tickers= pd.read_csv('sources_linker/tickers.csv')
+all_tickers = all_tickers['Symbol']
+print(all_tickers)
 
+dt = pd.read_csv('sources_linker/trading_days.csv')
 trading_day = False
 today = datetime.date.today()
-dt = pd.read_csv('sources_linker/trading_days.csv')
 today = str(today)
+
 t=[]
+
 for c in today:
     t.append(ord(c))
+    
 for i in range(len(dt[' '])):
     k=[]
     for c in dt[' '][i]:
@@ -42,7 +43,7 @@ class App:
         self.ticker_label = tk.Label(master, text="Select ticker/s")
         self.ticker_label.pack()
         self.lb = tk.Listbox(master, selectmode=tk.MULTIPLE)
-        for i in df:
+        for i in all_tickers:
             self.lb.insert(tk.END, f"{i}")
         self.lb.pack(fill='both', expand=True)
         
@@ -54,22 +55,12 @@ class App:
 
         # create input fields
         self.input_label = tk.Label(master, text="Secret key:")
-        #self.input_label.pack()
         self.input_entry = tk.Entry(master)
-        #self.input_entry.pack()
         self.input_label_pub = tk.Label(master, text="Public key:")
-        #self.input_label_pub.pack()
         self.input_entry_pub = tk.Entry(master)
-        #self.input_entry_pub.pack()
         self.input_checkbox_var = tk.BooleanVar()
         self.input_checkbox = tk.Checkbutton(master, text="Paper trade?", variable=self.input_checkbox_var)
-        #self.input_checkbox.pack()
-
-        # create start button
         self.start_button = tk.Button(master, text="Start", command=self.start)
-        #self.start_button.pack()
-
-        # initialize new_window as None
         self.new_window = None
 
     def update_input_fields(self):
@@ -83,11 +74,6 @@ class App:
             self.start_button.pack()#(state='normal')
         else:
             print('nothing')
-            '''self.input_entry.delete(0, tk.END)
-            self.input_entry.config(state='disabled')
-            self.input_checkbox.deselect()
-            self.input_checkbox.config(state='disabled')
-            self.start_button.config(state='disabled')'''
 
     def start(self):
         selected_item = self.dropdown_var.get()
@@ -138,25 +124,7 @@ class App:
         # read file and set label text
         
         if(trading_day==True):
-            self.trading_days.config(text='Dnes se obchoduje') #= tk.Label(self.new_window, text='Dnes se obchoduje')
-            
-        # the figure that will contain the plot
-            '''fig = Figure(figsize = (5, 5), dpi = 100)
-  
-        # list of squares
-            y = pd.read_csv('trading_results/AAL.csv')
-            y = y['0']
-        # adding the subplot
-            plot1 = fig.add_subplot(111)
-        # plotting the graph
-            plot1.plot(y)
-            canvas = FigureCanvasTkAgg(fig, master=self.new_window)  
-            canvas.draw()
-            canvas.get_tk_widget().pack()
-        # creating the Matplotlib toolbar
-            toolbar = NavigationToolbar2Tk(canvas, master=self.new_window)
-            toolbar.update()
-            canvas.get_tk_widget().pack()'''
+            self.trading_days.config(text='Dnes se obchoduje') 
             magic.magic()
             with open("items.txt", "r") as f:
                 contents = f.read()

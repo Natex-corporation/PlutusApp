@@ -1,5 +1,4 @@
 import yfinance as yf
-from datetime import datetime
 from datetime import date
 from datetime import timedelta
 import pandas as pd
@@ -12,6 +11,12 @@ def similar(a, b):
 
 checker = 0
 def download(tickers):
+    """Downloads the newest data that are avaiilable for training 
+
+    Args:
+        tickers (string_list): the list of strings should contain stock tickers in all capital letters
+    """
+    
     for name in tickers:
         reps = os.walk('')
         print(reps) 
@@ -43,9 +48,8 @@ def train_nn():
     linker = 'app_test'#'finised_files'
     names = os.listdir(linker)
     itemss = os.scandir()
-    for i in itemss:       
-        if(str(i)=='model.h5'):
-            os.remove('model.h5')
+    if os.path.exists('model.h5'):
+        os.remove('model.h5')
     
     model = keras.models.Sequential()
     model.add(keras.layers.LSTM(units=512, return_sequences=True, input_shape=(512, 6)))

@@ -1,0 +1,53 @@
+def update_file_label(self):
+        # read file and set label text
+        
+        if(trading_day==True):
+            self.trading_days.config(text='Dnes se obchoduje') #= tk.Label(self.new_window, text='Dnes se obchoduje')
+            
+        # the figure that will contain the plot
+            '''fig = Figure(figsize = (5, 5), dpi = 100)
+  
+        # list of squares
+            y = pd.read_csv('trading_results/AAL.csv')
+            y = y['0']
+        # adding the subplot
+            plot1 = fig.add_subplot(111)
+        # plotting the graph
+            plot1.plot(y)
+            canvas = FigureCanvasTkAgg(fig, master=self.new_window)  
+            canvas.draw()
+            canvas.get_tk_widget().pack()
+        # creating the Matplotlib toolbar
+            toolbar = NavigationToolbar2Tk(canvas, master=self.new_window)
+            toolbar.update()
+            canvas.get_tk_widget().pack()'''
+            
+def update_input_fields(self):
+        if self.dropdown_var.get() == 'Alpaca api':
+            self.input_label.pack()
+            self.input_entry.pack()
+            self.input_label_pub.pack()
+            self.input_entry_pub.pack()
+            #(state='normal')
+            self.input_checkbox.pack()#(state='normal')
+            self.start_button.pack()#(state='normal')
+        else:
+            print('nothing')
+            '''self.input_entry.delete(0, tk.END)
+            self.input_entry.config(state='disabled')
+            self.input_checkbox.deselect()
+            self.input_checkbox.config(state='disabled')
+            self.start_button.config(state='disabled')'''
+            
+            
+import tkinter as tk
+#import time
+import datetime
+import pandas as pd
+#from matplotlib.figure import Figure
+#from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+import data_download as dd
+from PIL import ImageTk, Image
+import datetime
+import os
+import magic
