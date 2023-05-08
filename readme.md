@@ -27,3 +27,5 @@ python appV2.py
 A new window will open displaying the trading results and a chart.
 ## License
 This project is licensed under the MIT License. See the [LICENSE](/LICENSE) file for details.
+
+Don't forget to regularly update your API keys and check for any changes in the trading data. Happy trading! 📈💰
