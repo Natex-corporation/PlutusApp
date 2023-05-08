@@ -28,4 +28,4 @@ A new window will open displaying the trading results and a chart.
 ## License
 This project is licensed under the MIT License. See the [LICENSE](/LICENSE) file for details.
 
-Don't forget to regularly update your API keys and check for any changes in the trading data. Happy trading! 📈💰
+Don't forget to regularly update your API keys and check for any changes in the trading data. Also, keep an eye out for newly released [models](https://github.com/Natex-corporation/models) in our models repository, which you can use to improve your trading strategy. Happy trading! 📈💰
