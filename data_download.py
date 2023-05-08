@@ -4,6 +4,9 @@ from datetime import timedelta
 import pandas as pd
 import os
 from difflib import SequenceMatcher
+import datetime
+import pandas as pd
+import yfinance as yf
 
 
 def similar(a, b):
@@ -122,9 +125,19 @@ def train_nn():
     model.save('model.h5')
     
 def live_data(tickers):
+    
+    # Get today's date and check if it's a weekend or holiday
+    today = datetime.date.today()
+    weekday = today.weekday()
+    holidays = pd.read_csv('sources_linker/trading_days.csv')[' ']
+    is_holiday = today in holidays # List of holidays
+    if weekday >= 5 or is_holiday:
+        print("Stock market data cannot be downloaded on weekends or holidays")
+        return
+
+    # Download stock market data for each ticker
     for name in tickers:
-        today = date.today()
-        yesterday =  today - timedelta(days=1)
+        yesterday =  today - datetime.timedelta(days=1)
         data = yf.download(name, start=str(yesterday), end=str(today), interval='1m')
         df = pd.DataFrame(data)
         df.to_csv('live_data/'+name+'.csv', mode='a', header=False)

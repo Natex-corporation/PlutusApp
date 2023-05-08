@@ -36,42 +36,71 @@ for i in range(len(dt[' '])):
         trading_day = True
 
 class App:
-    def __init__(self, master):
+    def __init__(self, master):   
         self.master = master
         master.title("Plutus")
-        self.master.geometry("150x400")
-        self.ticker_label = tk.Label(master, text="Select ticker/s")
-        self.ticker_label.pack()
-        self.lb = tk.Listbox(master, selectmode=tk.MULTIPLE)
+        self.master.geometry("150x500")
+
+        # Creating a styled label with a larger font size and bold text
+        self.ticker_label = tk.Label(master, text="Select Ticker(s)", font=("Helvetica", 14, "bold"), fg="#555")
+        self.ticker_label.pack(pady=10)
+
+        # Adding a border and a background color to the Listbox
+        self.lb = tk.Listbox(master, selectmode=tk.MULTIPLE, bd=0, bg="#eee")
+
+        # Inserting each ticker into the Listbox
         for i in all_tickers:
             self.lb.insert(tk.END, f"{i}")
+
         self.lb.pack(fill='both', expand=True)
         
-        # create dropdown
+        '''# create dropdown
         self.dropdown_var = tk.StringVar()
         self.dropdown_var.trace("w", lambda name, index, mode: self.update_input_fields())
         self.dropdown = tk.OptionMenu(master, self.dropdown_var, 'Alpaca api', 'coming soon')
-        self.dropdown.pack()
+        self.dropdown.pack()'''
+
+        # Creating a styled dropdown menu with a border and a background color
+        self.dropdown_var = tk.StringVar()
+        self.dropdown_var.set('Choose api')
+        self.dropdown_var.trace("w", lambda name, index, mode: self.update_input_fields())
+        self.dropdown_options = ['Alpaca API', 'Coming Soon']
+        self.dropdown = tk.OptionMenu(master, self.dropdown_var, *self.dropdown_options)
+        self.dropdown.config(bd=0, bg="#eee", font=("Helvetica", 12))
+        self.dropdown.pack(pady=5)      
 
         # create input fields
-        self.input_label = tk.Label(master, text="Secret key:")
+        '''self.input_label = tk.Label(master, text="Secret key:")
         self.input_entry = tk.Entry(master)
         self.input_label_pub = tk.Label(master, text="Public key:")
         self.input_entry_pub = tk.Entry(master)
         self.input_checkbox_var = tk.BooleanVar()
         self.input_checkbox = tk.Checkbutton(master, text="Paper trade?", variable=self.input_checkbox_var)
         self.start_button = tk.Button(master, text="Start", command=self.start)
-        self.new_window = None
+        self.new_window = None'''
+        # Creating styled labels and input fields
+        self.input_label = tk.Label(master, text="Secret Key", font=("Helvetica", 14, "bold"), fg="#555")
+        self.input_entry = tk.Entry(master, font=("Helvetica", 12))
+        self.input_label_pub = tk.Label(master, text="Public Key", font=("Helvetica", 14, "bold"), fg="#555")
+        self.input_entry_pub = tk.Entry(master, font=("Helvetica", 12))
+        self.input_checkbox_var = tk.BooleanVar()
+        self.input_checkbox = tk.Checkbutton(master, text="Paper Trade", variable=self.input_checkbox_var, font=("Helvetica", 12))
+
+        # Styling the Start button with a larger font size, bold text, and a background color
+        self.start_button = tk.Button(master, text="Start", font=("Helvetica", 14, "bold"), fg="white", bg="#555", command=self.start)
+
+        
 
     def update_input_fields(self):
-        if self.dropdown_var.get() == 'Alpaca api':
-            self.input_label.pack()
-            self.input_entry.pack()
-            self.input_label_pub.pack()
-            self.input_entry_pub.pack()
-            #(state='normal')
-            self.input_checkbox.pack()#(state='normal')
-            self.start_button.pack()#(state='normal')
+        if self.dropdown_var.get() == 'Alpaca API':
+            # Adding padding to the labels, input fields, and checkbox for better spacing
+            self.input_label.pack(pady=5)
+            self.input_entry.pack(pady=2)
+            self.input_label_pub.pack(pady=5)
+            self.input_entry_pub.pack(pady=2)
+            self.input_checkbox.pack(pady=2)
+            self.start_button.pack(pady=10)
+            
         else:
             print('nothing')
 
