@@ -7,6 +7,7 @@ from difflib import SequenceMatcher
 import datetime
 import pandas as pd
 import yfinance as yf
+import requests
 
 
 def similar(a, b):
@@ -141,4 +142,36 @@ def live_data(tickers):
         data = yf.download(name, start=str(yesterday), end=str(today), interval='1m')
         df = pd.DataFrame(data)
         df.to_csv('live_data/'+name+'.csv', mode='a', header=False)
+        
+def setup_env_file():
+    env_path = ".env"
+    expected_vars = ["API_provider", "Secret_key", "Private_key", "Paper_trading", "limit_usage"]
 
+    # Create .env file if it doesn't already exist
+    if not os.path.exists(env_path):
+        with open(env_path, "w") as f:
+            f.write("API_provider=\nSecret_key=\nPrivate_key=\nPaper_trading=\nlimit_usage=\n")
+
+    try:
+        os.getenv('API_provider')
+        os.getenv('Secret_key')
+        os.getenv('Private_key')
+        os.getenv('Paper_trading')
+        os.getenv('limit_usage')
+    except:
+        print('something went wrong')
+
+def download_model(github_url, model_filename='model.h5'):
+    """
+    Download a machine learning model from a GitHub repository.
+
+    Args:
+        github_url (str): The URL of the GitHub repository where the model is located.
+        model_filename (str): The filename of the model to download.
+
+    Returns:
+        None
+    """
+    response = requests.get(f"{github_url}/raw/main/{model_filename}")
+    with open(model_filename, "wb") as f:
+        f.write(response.content)

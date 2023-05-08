@@ -34,7 +34,7 @@ for i in range(len(dt[' '])):
         k.append(ord(c))
     if k==t:
         trading_day = True
-
+dd.setup_env_file()
 class App:
     def __init__(self, master):   
         self.master = master
@@ -69,15 +69,6 @@ class App:
         self.dropdown.config(bd=0, bg="#eee", font=("Helvetica", 12))
         self.dropdown.pack(pady=5)      
 
-        # create input fields
-        '''self.input_label = tk.Label(master, text="Secret key:")
-        self.input_entry = tk.Entry(master)
-        self.input_label_pub = tk.Label(master, text="Public key:")
-        self.input_entry_pub = tk.Entry(master)
-        self.input_checkbox_var = tk.BooleanVar()
-        self.input_checkbox = tk.Checkbutton(master, text="Paper trade?", variable=self.input_checkbox_var)
-        self.start_button = tk.Button(master, text="Start", command=self.start)
-        self.new_window = None'''
         # Creating styled labels and input fields
         self.input_label = tk.Label(master, text="Secret Key", font=("Helvetica", 14, "bold"), fg="#555")
         self.input_entry = tk.Entry(master, font=("Helvetica", 12))
@@ -103,30 +94,38 @@ class App:
             
         else:
             print('nothing')
-
-    def start(self):
+            
+    def start_trading(self):
         selected_item = self.dropdown_var.get()
         selected_indices = self.lb.curselection()
         selected_items = [self.lb.get(index) for index in selected_indices]
+        secret_key =  self.input_entry.get()
+        publick_key = self.input_entry_pub.get()
+        checkbox_state = self.input_checkbox_var.get()
+        self.Donation.destroy()
         print("Selected items:")
         tickers = []
         for item in selected_items:
             print(item)
             tickers.append(str(item))
-        print("Selected item:", selected_item)
-        print("Input secret:", self.input_entry.get())
-        print("Input :", self.input_entry_pub.get())
-        checkbox_state = self.input_checkbox_var.get()
-        print("Checkbox:", checkbox_state)
-        dk=pd.DataFrame()
-        dk['tickers'] = tickers
-        dk['secret_key'] = self.input_entry.get()
-        dk['publick_key'] = self.input_entry_pub.get()
-        dk['paper'] = self.input_checkbox_var.get()
-        dk.to_csv('output.csv')
+            
+        
+        env_path = ".env"
+        with open(env_path, "w") as f:
+            f.write(f"API_provider={selected_item}\n")
+            f.write(f"Secret_key={secret_key}\n")
+            f.write(f"Public_key={publick_key}\n")
+            f.write(f"Paper_trading={checkbox_state}\n")
+            f.write(f"limit_usage={self.computing_checkbox_var.get()}\n")
+        
+        #self.start_trading_button = tk.Button(master, text="Start", font=("Helvetica", 14, "bold"), fg="white", bg="#555", command=self.start)
         #training download
-        dd.download(tickers)
-        dd.train_nn()
+        if os.getenv('limit_usage') == False:
+            dd.download(tickers)
+            dd.train_nn()
+        else: 
+            dd.download_model('https://github.com/Natex-corporation/models')
+            
         # close input window and open new window
         self.master.withdraw()
         self.new_window = tk.Toplevel()
@@ -148,7 +147,29 @@ class App:
         # start timer to update label every 30 seconds
         self.update_file_label()
         self.new_window.after(3000, self.update_file_label)
-
+                
+    def start(self):
+        lol = os.getenv('limit_usage')
+        if os.getenv('limit_usage') != False and os.getenv('limit_usage') != True:
+            self.master.withdraw()
+            self.Donation = tk.Toplevel()
+            self.Donation.title("Plutus Trading")
+            self.Donation.geometry("100x100")
+            self.Donation.protocol("WM_DELETE_WINDOW", self.on_new_window_close)
+        
+            self.computing_checkbox_var = tk.BooleanVar(self.Donation)
+            self.computing_checkbox = tk.Checkbutton(self.Donation, text="Contribute to project", variable=self.computing_checkbox_var, font=("Helvetica", 12))
+            self.computing_checkbox.pack(pady=2)
+            '''if self.computing_checkbox_var.get() == True:
+                os.environ["limit_usage"] = 'False'
+            else:
+                os.environ["limit_usage"] = 'True'''
+            self.start_trading_button = tk.Button(self.Donation, text="Start", font=("Helvetica", 14, "bold"), fg="white", bg="#555", command=self.start_trading)
+            self.start_trading_button.pack()
+        else:
+            self.start_trading()
+        
+        
     def update_file_label(self):
         # read file and set label text
         
