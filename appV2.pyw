@@ -149,7 +149,6 @@ class App:
         self.new_window.after(3000, self.update_file_label)
                 
     def start(self):
-        lol = os.getenv('limit_usage')
         if os.getenv('limit_usage') != False and os.getenv('limit_usage') != True:
             self.master.withdraw()
             self.Donation = tk.Toplevel()
