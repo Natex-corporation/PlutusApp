@@ -6,6 +6,7 @@ import datetime
 import pandas as pd
 from unittest.mock import patch, MagicMock
 from io import StringIO
+import uuid
 
 class TestDownload(unittest.TestCase):
     
@@ -44,6 +45,21 @@ class TestLiveData(unittest.TestCase):
             with patch('sys.stdout', new=StringIO()) as fake_output:
                 dd.live_data(['AAPL'])
                 self.assertEqual(fake_output.getvalue().strip(), "Stock market data cannot be downloaded on weekends or holidays")
+                
+def assign_unique_ID():
+    now = datetime.datetime.now()
+    unique_id = str(now.date()) + "_" + str(now.time().strftime('%H%M%S')) + "_" + str(uuid.uuid4())
+
+    print(unique_id)
+
+class TestAssignUniqueID(unittest.TestCase):
+
+    def test_assign_unique_ID(self):
+        # Call the function to assign a unique ID
+        assign_unique_ID()
+
+        # Verify that the output is a string
+        self.assertIsInstance(assign_unique_ID(), str)
 
     
 if __name__ == '__main__':

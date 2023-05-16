@@ -8,7 +8,13 @@ import datetime
 import pandas as pd
 import yfinance as yf
 import requests
-
+import uuid
+from github import Github
+from github import InputGitTreeElement
+import shutil
+import tensorflow as tf
+import time
+import signal
 
 def similar(a, b):
     return SequenceMatcher(None, a, b).ratio()
@@ -145,12 +151,12 @@ def live_data(tickers):
         
 def setup_env_file():
     env_path = ".env"
-    expected_vars = ["API_provider", "Secret_key", "Private_key", "Paper_trading", "limit_usage"]
+    #expected_vars = ["API_provider", "Secret_key", "Private_key", "Paper_trading", "limit_usage", "limit_computing", "selected_stocks", "unique_ID", "github_token"]
 
     # Create .env file if it doesn't already exist
     if not os.path.exists(env_path):
         with open(env_path, "w") as f:
-            f.write("API_provider=\nSecret_key=\nPrivate_key=\nPaper_trading=\nlimit_usage=\n")
+            f.write("API_provider=\nSecret_key=\nPrivate_key=\nPaper_trading=\nlimit_usage=\nlimit_computing=\nselected_stocks=\nunique_ID=\ngithub_token=\n")
 
     try:
         os.getenv('API_provider')
@@ -158,10 +164,14 @@ def setup_env_file():
         os.getenv('Private_key')
         os.getenv('Paper_trading')
         os.getenv('limit_usage')
+        os.getenv('limit_computing')
+        os.getenv('selected_stocks')
+        os.getenv('unique_ID')
+        os.getenv('github_token')
     except:
         print('something went wrong')
 
-def download_model(github_url, model_filename='model.h5'):
+def download_model(github_url='https://github.com/Natex-corporation/models', model_filename='model.h5'):
     """
     Download a machine learning model from a GitHub repository.
 
@@ -172,6 +182,173 @@ def download_model(github_url, model_filename='model.h5'):
     Returns:
         None
     """
-    response = requests.get(f"{github_url}/raw/main/{model_filename}")
+    response = requests.get(f"{github_url}/raw/models/{model_filename}")
     with open(model_filename, "wb") as f:
         f.write(response.content)
+
+def assign_unique_ID():
+    """
+    Generates a unique ID by concatenating the current date and time, and a UUID. Writes the unique ID and other environment
+    variables to a file named ".env".
+    
+    Returns:
+    None
+    """
+    API_provider = os.getenv('API_provider')
+    Secret_key = os.getenv('Secret_key')
+    Public_key = os.getenv('Public_key')
+    Paper_trading = os.getenv('Paper_trading')
+    limit_usage = os.getenv('limit_usage')
+    limit_computing = os.getenv('limit_computing')
+    selected_stocks = os.getenv('selected_stocks')
+    unique_ID = os.getenv('unique_ID')
+    github_token = os.getenv('github_token')
+    git_executable = os.getenv('git_executable')
+    now = datetime.datetime.now()
+    unique_ID = str(now.date()) + "_" + str(now.time().strftime('%H%M%S')) + "_" + str(uuid.uuid4())
+
+    with open(".env", "w") as f:
+        f.write(f"API_provider={API_provider}\n")
+        f.write(f"Secret_key={Secret_key}\n")
+        f.write(f"Public_key={Public_key}\n")
+        f.write(f"Paper_trading={Paper_trading}\n")
+        f.write(f"limit_usage={limit_usage}\n")
+        f.write(f"limit_computing={limit_computing}\n")
+        f.write(f"selected_stocks={selected_stocks}\n")
+        f.write(f"unique_ID={unique_ID}\n")
+        f.write(f"github_token={github_token}\n")
+        f.write(f"git_executable={git_executable}\n")        
+
+def add_model_files_to_branch(repository_name: str, unique_ID: str, base_branch: str, model_files= ['Trained.h5', 'Info.csv']) -> None:
+    git_executable_path = os.getenv('git_executable')#'''C:/Program Files/Git/cmd/git.exe'''
+    os.environ['GIT_PYTHON_GIT_EXECUTABLE'] = git_executable_path
+    github_token = os.getenv('github_token')
+    import git
+    from git import Repo
+    from github import Github, Repository
+    import shutil
+
+    # Authenticate with Github using the personal access token
+    g = Github(github_token)
+
+    # Get the repository object
+    repo = g.get_repo(repository_name)
+
+    # Check if a branch with the unique ID already exists
+    try:
+        existing_branch = repo.get_branch(unique_ID)
+    except:
+        existing_branch = None
+
+    # If the branch already exists, clone its contents
+    if existing_branch:
+        print(f"Branch '{unique_ID}' already exists. Cloning its contents...")
+        local_dir = 'E:\PlutusApp\send'
+        os.mkdir(local_dir)
+        Repo.clone_from(f"https://github.com/{repository_name}.git", local_dir, branch=unique_ID)
+
+    # If the branch doesn't exist, create a new branch
+    else:
+        print(f"Creating a new branch '{unique_ID}'...")
+        # Get the base branch object
+        base_branch_obj = repo.get_branch(base_branch)
+
+        # Get the base commit sha
+        base_commit_sha = base_branch_obj.commit.sha
+
+        # Create a new branch
+        new_branch_ref = f"refs/heads/{unique_ID}"
+        new_branch = repo.create_git_ref(ref=new_branch_ref, sha=base_commit_sha)
+
+        # Clone the repository to a local directory
+        local_dir = 'E:\PlutusApp\send'
+        os.mkdir(local_dir)
+        Repo.clone_from(f"https://github.com/{repository_name}.git", local_dir, branch=unique_ID)
+
+    # Add the new files to the local directory
+    for file in model_files:
+        shutil.copy(file, local_dir)
+
+    commit_message = f"Add model files at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+
+    # Add and commit the new files
+    repo = Repo(local_dir)
+    repo.index.add(model_files)
+    repo.index.commit(commit_message)
+
+    # Push the changes to the new branch
+    remote_branch_ref = f"refs/heads/{unique_ID}"
+    try:
+        repo.remote(name='origin').push(refspec=f"{remote_branch_ref}:{remote_branch_ref}")
+    except git.GitCommandError as e:
+        print(f"Error occurred while pushing changes: {e}")
+        print("Changes were not pushed to the remote repository.")
+    else:
+        print("Changes were successfully pushed to the remote repository.")
+
+    print(f"Branch '{unique_ID}' created successfully!")
+    
+def delete_send_folder():
+    folder_path = 'E:\PlutusApp\send' # specify the path to the 'send' folder
+    if os.path.exists(folder_path):
+        shutil.rmtree(folder_path)
+        print(f"'{folder_path}' folder has been deleted successfully.")
+    else:
+        print(f"'{folder_path}' folder does not exist.")
+        
+def benchmark_training_speed(num_epochs=100):
+    (x_train, y_train), _ = tf.keras.datasets.mnist.load_data()
+    x_train = x_train.reshape(x_train.shape[0], 28, 28, 1).astype('float32') / 255
+    y_train = tf.keras.utils.to_categorical(y_train, 10)
+
+    model = tf.keras.Sequential([
+        tf.keras.layers.Conv2D(32, (3,3), activation='relu', input_shape=(28,28,1)),
+        tf.keras.layers.MaxPooling2D((2,2)),
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Dense(10, activation='softmax')
+    ])
+
+    loss_fn = tf.keras.losses.CategoricalCrossentropy()
+    optimizer = tf.keras.optimizers.Adam()
+
+    train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train)).batch(32)
+
+    times = {}
+    with tf.device('/cpu:0'):
+        start_time = time.time()
+        for epoch in range(num_epochs):
+            for x, y in train_ds:
+                with tf.GradientTape() as tape:
+                    predictions = model(x)
+                    loss = loss_fn(y, predictions)
+                gradients = tape.gradient(loss, model.trainable_variables)
+                optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+        cpu_time = time.time() - start_time
+        print("Training time on CPU: {:.4f}s".format(cpu_time))
+        times['CPU'] = cpu_time
+
+    if tf.test.is_gpu_available():
+        with tf.device('/gpu:0'):
+            start_time = time.time()
+            for epoch in range(num_epochs):
+                for x, y in train_ds:
+                    with tf.GradientTape() as tape:
+                        predictions = model(x)
+                        loss = loss_fn(y, predictions)
+                    gradients = tape.gradient(loss, model.trainable_variables)
+                    optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+            gpu_time = time.time() - start_time
+            print("Training time on GPU: {:.4f}s".format(gpu_time))
+            times['GPU'] = gpu_time
+    else:
+        print("GPU acceleration is not available. Training on CPU.")
+    
+    return times
+
+def training_details(github_url='https://github.com/Natex-corporation/models', unique_ID='model.h5'):
+    unique_ID=os.getenv('unique_ID')
+    unique_ID=unique_ID+'.csv'
+    response = requests.get(f"{github_url}/raw/main/details/{unique_ID}")
+    with open(unique_ID, "wb") as f:
+        f.write(response.content)
+    
